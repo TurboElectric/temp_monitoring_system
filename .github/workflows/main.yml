@@ -15,7 +15,7 @@ jobs:
       - run: flutter pub get
       - run: flutter build apk --release
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
@@ -30,7 +30,7 @@ jobs:
       - run: flutter pub get
       - run: flutter build ipa --release
       - name: Upload IPA
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: release-ipa
           path: build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app.ipa
