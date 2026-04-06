@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  modbus-mqtt-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.arm
+    container_name: modbus-mqtt-server
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+    environment:
+      - MQTT_BROKER=mqtt://mosquitto:1883
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=influx_token
+      - INFLUXDB_ORG=myorg
+      - INFLUXDB_BUCKET=temperatures
+      - FIREBASE_DEVICE_TOKEN=your_firebase_device_token
+    volumes:
+      - ./serviceAccountKey.json:/app/serviceAccountKey.json
+    depends_on:
+      - mosquitto
+      - influxdb
+
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - mosquitto_config:/mosquitto/config
+      - mosquitto_/mosquitto/data
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password
+      - DOCKER_INFLUXDB_INIT_ORG=myorg
+      - DOCKER_INFLUXDB_INIT_BUCKET=temperatures
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=influx_token
+    volumes:
+      - influxdb_/var/lib/influxdb2
+
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - influxdb
+    volumes:
+      - grafana_/var/lib/grafana
+
+volumes:
+  mosquitto_config:
+  mosquitto_
+  influxdb_
+  grafana_
